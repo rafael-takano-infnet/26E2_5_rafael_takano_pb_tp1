@@ -1,4 +1,5 @@
 package com.bookcatalog.service.impl;
+import com.bookcatalog.exception.ResourceNotFoundException;
 
 import com.bookcatalog.domain.Publisher;
 import com.bookcatalog.repository.PublisherRepository;
@@ -40,7 +41,7 @@ public class PublisherServiceImpl implements PublisherService {
     @Override
     public Publisher update(Long id, Publisher publisherDetails) {
         Publisher publisher = publisherRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Publisher not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher not found with id: " + id));
 
         publisher.setName(publisherDetails.getName());
         publisher.setCountry(publisherDetails.getCountry());

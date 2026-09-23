@@ -1,4 +1,5 @@
 package com.bookcatalog.service.impl;
+import com.bookcatalog.exception.ResourceNotFoundException;
 
 import com.bookcatalog.domain.Author;
 import com.bookcatalog.repository.AuthorRepository;
@@ -40,7 +41,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public Author update(Long id, Author authorDetails) {
         Author author = authorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Author not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + id));
 
         author.setName(authorDetails.getName());
         author.setBiography(authorDetails.getBiography());

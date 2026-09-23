@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { bookAPI, authorAPI, publisherAPI, genreAPI } from '../services/api';
+import ReviewList from './ReviewList';
 
 function BookList() {
   const [books, setBooks] = useState([]);
+  const [expandedReviewsId, setExpandedReviewsId] = useState(null);
   const [authors, setAuthors] = useState([]);
   const [publishers, setPublishers] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -268,7 +270,14 @@ function BookList() {
             <div className="actions">
               <button className="btn btn-primary" onClick={() => handleEdit(book)}>Editar</button>
               <button className="btn btn-danger" onClick={() => handleDelete(book.id)}>Excluir</button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setExpandedReviewsId(expandedReviewsId === book.id ? null : book.id)}
+              >
+                {expandedReviewsId === book.id ? 'Ocultar Avaliações' : 'Avaliações'}
+              </button>
             </div>
+            {expandedReviewsId === book.id && <ReviewList bookId={book.id} />}
           </div>
         ))}
       </div>

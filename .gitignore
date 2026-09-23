@@ -3,7 +3,15 @@ node_modules/
 
 # Build outputs
 backend/target/
+review-service/target/
 frontend/dist/
+
+# H2 file-based databases
+data/
+backend/data/
+review-service/data/
+*.mv.db
+*.trace.db
 
 # IDE
 .idea/

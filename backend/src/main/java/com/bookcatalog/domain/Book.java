@@ -1,14 +1,16 @@
 package com.bookcatalog.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.envers.Audited;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Audited
 @Table(name = "books")
-public class Book {
+public class Book extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

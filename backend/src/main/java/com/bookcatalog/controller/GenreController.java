@@ -1,4 +1,5 @@
 package com.bookcatalog.controller;
+import com.bookcatalog.exception.ResourceNotFoundException;
 
 import com.bookcatalog.domain.Genre;
 import com.bookcatalog.dto.GenreRequestDTO;
@@ -28,7 +29,7 @@ public class GenreController {
     @GetMapping("/{id}")
     public ResponseEntity<Genre> findById(@PathVariable Long id) {
         Genre genre = genreService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Genre not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Genre not found with id: " + id));
         return ResponseEntity.ok(genre);
     }
 

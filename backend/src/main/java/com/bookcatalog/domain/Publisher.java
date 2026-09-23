@@ -1,10 +1,12 @@
 package com.bookcatalog.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.envers.Audited;
 
 @Entity
+@Audited
 @Table(name = "publishers")
-public class Publisher {
+public class Publisher extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

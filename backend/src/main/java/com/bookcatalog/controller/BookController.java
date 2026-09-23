@@ -1,5 +1,6 @@
 package com.bookcatalog.controller;
 
+import com.bookcatalog.exception.ResourceNotFoundException;
 import com.bookcatalog.domain.Author;
 import com.bookcatalog.domain.Book;
 import com.bookcatalog.domain.Genre;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,8 +52,13 @@ public class BookController {
     @GetMapping("/{id}")
     public ResponseEntity<BookResponseDTO> findById(@PathVariable Long id) {
         Book book = bookService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
         return ResponseEntity.ok(toResponseDTO(book));
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<List<Map<String, Object>>> history(@PathVariable Long id) {
+        return ResponseEntity.ok(bookService.getHistory(id));
     }
 
     @GetMapping("/search")
@@ -72,13 +79,13 @@ public class BookController {
         book.setPrice(requestDTO.getPrice());
 
         Publisher publisher = publisherService.findById(requestDTO.getPublisherId())
-                .orElseThrow(() -> new RuntimeException("Publisher not found with id: " + requestDTO.getPublisherId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher not found with id: " + requestDTO.getPublisherId()));
         book.setPublisher(publisher);
 
         if (requestDTO.getAuthorIds() != null) {
             Set<Author> authors = requestDTO.getAuthorIds().stream()
                     .map(id -> authorService.findById(id)
-                            .orElseThrow(() -> new RuntimeException("Author not found with id: " + id)))
+                            .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + id)))
                     .collect(Collectors.toSet());
             book.setAuthors(authors);
         }
@@ -86,7 +93,7 @@ public class BookController {
         if (requestDTO.getGenreIds() != null) {
             Set<Genre> genres = requestDTO.getGenreIds().stream()
                     .map(id -> genreService.findById(id)
-                            .orElseThrow(() -> new RuntimeException("Genre not found with id: " + id)))
+                            .orElseThrow(() -> new ResourceNotFoundException("Genre not found with id: " + id)))
                     .collect(Collectors.toSet());
             book.setGenres(genres);
         }
@@ -98,7 +105,7 @@ public class BookController {
     @PutMapping("/{id}")
     public ResponseEntity<BookResponseDTO> update(@PathVariable Long id, @Valid @RequestBody BookRequestDTO requestDTO) {
         Book existingBook = bookService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
 
         existingBook.setTitle(requestDTO.getTitle());
         existingBook.setIsbn(requestDTO.getIsbn());
@@ -107,13 +114,13 @@ public class BookController {
         existingBook.setPrice(requestDTO.getPrice());
 
         Publisher publisher = publisherService.findById(requestDTO.getPublisherId())
-                .orElseThrow(() -> new RuntimeException("Publisher not found with id: " + requestDTO.getPublisherId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher not found with id: " + requestDTO.getPublisherId()));
         existingBook.setPublisher(publisher);
 
         if (requestDTO.getAuthorIds() != null) {
             Set<Author> authors = requestDTO.getAuthorIds().stream()
                     .map(authorId -> authorService.findById(authorId)
-                            .orElseThrow(() -> new RuntimeException("Author not found with id: " + authorId)))
+                            .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + authorId)))
                     .collect(Collectors.toSet());
             existingBook.setAuthors(authors);
         }
@@ -121,7 +128,7 @@ public class BookController {
         if (requestDTO.getGenreIds() != null) {
             Set<Genre> genres = requestDTO.getGenreIds().stream()
                     .map(genreId -> genreService.findById(genreId)
-                            .orElseThrow(() -> new RuntimeException("Genre not found with id: " + genreId)))
+                            .orElseThrow(() -> new ResourceNotFoundException("Genre not found with id: " + genreId)))
                     .collect(Collectors.toSet());
             existingBook.setGenres(genres);
         }

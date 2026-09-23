@@ -1,4 +1,5 @@
 package com.bookcatalog.controller;
+import com.bookcatalog.exception.ResourceNotFoundException;
 
 import com.bookcatalog.domain.Publisher;
 import com.bookcatalog.dto.PublisherRequestDTO;
@@ -28,7 +29,7 @@ public class PublisherController {
     @GetMapping("/{id}")
     public ResponseEntity<Publisher> findById(@PathVariable Long id) {
         Publisher publisher = publisherService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Publisher not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher not found with id: " + id));
         return ResponseEntity.ok(publisher);
     }
 

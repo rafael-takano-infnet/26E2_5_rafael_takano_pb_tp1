@@ -304,6 +304,47 @@ O frontend será executado em `http://localhost:3000`
 
 ---
 
+## Microsserviço de Avaliações (Review Service)
+
+Além do monólito principal, o projeto conta com um microsserviço independente, o **review-service**, responsável por gerenciar as avaliações (reviews) dos livros. Ele possui seu próprio banco H2 (arquivo separado), roda na porta `8081` e não compartilha código ou dependências com o backend principal — a única integração entre eles é via eventos (ver seção seguinte).
+
+### Endpoints
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/reviews` | Listar todas as avaliações |
+| GET | `/api/reviews?bookId=` | Listar avaliações de um livro |
+| GET | `/api/reviews/{id}` | Buscar avaliação por ID |
+| POST | `/api/reviews` | Criar nova avaliação |
+| PUT | `/api/reviews/{id}` | Atualizar avaliação |
+| DELETE | `/api/reviews/{id}` | Deletar avaliação |
+
+---
+
+## Eventos com RabbitMQ
+
+A comunicação entre o backend principal e o review-service é feita de forma assíncrona via RabbitMQ, evitando acoplamento direto entre os serviços.
+
+Quando um livro é deletado no backend (`DELETE /api/books/{id}`), o `BookService` publica um evento `book.deleted` (contendo o ID do livro) no exchange do tipo tópico `book-events`. O review-service mantém uma fila vinculada a esse exchange com a routing key `book.deleted` e, através de um `@RabbitListener`, consome o evento e remove todas as avaliações associadas àquele livro, mantendo a consistência dos dados entre os dois serviços sem uma chamada síncrona.
+
+---
+
+## Como Executar com Docker Compose
+
+Para subir toda a stack (backend, review-service, RabbitMQ e frontend) de uma vez, execute na raiz do projeto:
+
+```bash
+docker compose up --build
+```
+
+Serviços disponíveis após a subida:
+- Backend: `http://localhost:8080`
+- Review Service: `http://localhost:8081`
+- RabbitMQ Management: `http://localhost:15672` (usuário/senha: `guest`/`guest`)
+- Frontend: `http://localhost:3000`
+
+---
+
 ## Princípios de Design Aplicados
 
 ### SOLID
@@ -318,3 +359,13 @@ O frontend será executado em `http://localhost:3000`
 - Injeção de dependência via construtor
 - DTOs para separar contratos de API de entidades de domínio
 - Validação de entrada com annotations
+
+---
+
+## Histórico de Dados e Auditoria
+
+As entidades `Book`, `Author`, `Publisher` e `Genre` são anotadas com `@Audited` (Hibernate Envers), que registra automaticamente cada revisão (criação, atualização, remoção) em tabelas de auditoria separadas. Além disso, `BaseEntity` adiciona os campos `createdAt`/`updatedAt` via `@CreatedDate`/`@LastModifiedDate`. O endpoint `GET /api/books/{id}/history` expõe o histórico de revisões de um livro específico.
+
+## Integração Contínua
+
+O workflow `.github/workflows/ci.yml` executa `mvn test` para os módulos `backend` e `review-service` a cada push ou pull request na branch `main`.

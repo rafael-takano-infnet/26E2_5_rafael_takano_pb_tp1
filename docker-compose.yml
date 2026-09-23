@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - backend-data:/app/data
+    depends_on:
+      - rabbitmq
+
+  review-service:
+    build: ./review-service
+    ports:
+      - "8081:8081"
+    volumes:
+      - review-data:/app/data
+    depends_on:
+      - rabbitmq
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - review-service
+
+volumes:
+  backend-data:
+  review-data:
