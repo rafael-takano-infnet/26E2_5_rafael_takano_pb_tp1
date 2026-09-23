@@ -4,6 +4,7 @@ import com.reviewservice.domain.Review;
 import com.reviewservice.repository.ReviewRepository;
 import com.reviewservice.service.ReviewService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +56,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public void deleteByBookId(Long bookId) {
         reviewRepository.deleteByBookId(bookId);
     }
